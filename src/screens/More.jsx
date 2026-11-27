@@ -4,12 +4,14 @@ import { supabase } from '../supabase'
 import { useLoad, latestBody, effectiveTargets } from '../lib/data'
 import { fmt, parseNum } from '../lib/num'
 import ProfileFields, { profileToForm } from './ProfileFields'
+import HealthSync from './HealthSync'
 
 export default function More() {
   return (
     <>
       <ProfileCard />
       <TargetsCard />
+      <HealthSync />
       <PairCard />
       <PrivacyCard />
       <section className="card">

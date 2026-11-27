@@ -232,3 +232,11 @@ input, select, textarea { font-size: 16px; } /* iOS не увеличивает 
 .auth p { margin: 0; color: var(--muted); }
 .soon { display: flex; flex-direction: column; gap: 6px; }
 .soon li { color: var(--muted); }
+
+/* ── Синхронизация ── */
+.copy-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.code { display: block; font: 13px/1.35 ui-monospace, 'SF Mono', Menlo, monospace; word-break: break-all; user-select: all; color: var(--ink); }
+.guide { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
+.guide summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.guide ol { margin: 10px 0 4px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.guide code { font: 13px ui-monospace, 'SF Mono', Menlo, monospace; background: var(--surface); padding: 1px 5px; border-radius: 5px; }

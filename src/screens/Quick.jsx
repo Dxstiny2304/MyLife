@@ -95,7 +95,7 @@ export function QuickSteps({ date, onSaved }) {
       <label className="field"><span>Шагов за день</span>
         <input id="qs-steps" className="input" inputMode="numeric" value={value} onChange={(e) => setSteps(e.target.value)} placeholder="10 000" autoFocus />
       </label>
-      <p className="hint">Число шагов смотри в приложении «Здоровье». Автоматический импорт сделаем позже.</p>
+      <p className="hint">Шаги можно не вводить вручную: настрой автоматическую передачу из «Здоровья» в разделе «Ещё».</p>
       {error && <div className="error">{error}</div>}
       <button className="btn">Сохранить</button>
     </form>
