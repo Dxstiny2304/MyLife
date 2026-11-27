@@ -139,13 +139,22 @@ function DayEditor({ weekday, template, onClose, onSaved }) {
         name: name.trim() || kindLabel(kind), kind, weekdays: [weekday], muscle_groups: groups,
         exercises: exercises.map((e) => ({ ...e, sets: parseNum(e.sets) || 3, reps: parseNum(e.reps) || 10 })),
       }
-      res = template
-        ? await supabase.from('workout_templates').update(row).eq('id', template.id)
-        : await supabase.from('workout_templates').insert(row)
+      const write = (r) => (template
+        ? supabase.from('workout_templates').update(r).eq('id', template.id)
+        : supabase.from('workout_templates').insert(r))
+      res = await write(row)
+      // Если в базе ещё нет новых колонок (не запущен body-v2.sql), сохраняем без них:
+      // группы мышц потом восстанавливаются из упражнений
+      if (res.error && /kind|muscle_groups/.test(res.error.message)) {
+        const { kind: _k, muscle_groups: _g, ...rest } = row
+        res = await write(rest)
+      }
     }
     setBusy(false)
-    if (res.error) setError(res.error.message)
-    else onSaved()
+    if (res.error) {
+      setError(`Не сохранилось: ${res.error.message}`)
+      setTimeout(() => document.getElementById('day-error')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50)
+    } else onSaved()
   }
 
   return (
@@ -191,8 +200,8 @@ function DayEditor({ weekday, template, onClose, onSaved }) {
           )}
         </>
       )}
-      {error && <div className="error">{error}</div>}
-      <button className="btn" onClick={save} disabled={busy}>Сохранить</button>
+      {error && <div className="error" id="day-error">{error}</div>}
+      <button className="btn" onClick={save} disabled={busy}>{busy ? 'Сохраняю…' : 'Сохранить'}</button>
     </Sheet>
   )
 }

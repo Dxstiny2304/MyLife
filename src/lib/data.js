@@ -68,7 +68,11 @@ export const sumFood = (rows) =>
 
 // ── Тренировки и фото ──
 export const workoutTemplates = async (userId) =>
-  unwrap(await supabase.from('workout_templates').select('*').eq('user_id', userId).order('created_at'))
+  unwrap(await supabase.from('workout_templates').select('*').eq('user_id', userId).order('created_at')).map((t) => ({
+    ...t,
+    kind: t.kind || 'custom',
+    muscle_groups: t.muscle_groups?.length ? t.muscle_groups : [...new Set((t.exercises || []).map((e) => e.group).filter((g) => g && g !== 'custom'))],
+  }))
 
 export const workoutLogs = async (userId, fromDate) => {
   let q = supabase.from('workout_logs').select('*').eq('user_id', userId).order('date', { ascending: false }).order('created_at', { ascending: false })
