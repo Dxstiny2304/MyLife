@@ -8,7 +8,7 @@ import Food from './screens/Food'
 import Body from './screens/Body'
 import Plan from './screens/Plan'
 import More from './screens/More'
-import { QuickBody, QuickSteps, QuickWater } from './screens/Quick'
+import { QuickBody, QuickWater } from './screens/Quick'
 import { FoodForm } from './screens/Food'
 import { today } from './lib/dates'
 
@@ -141,7 +141,6 @@ function QuickSheet({ kind, setKind }) {
     const items = [
       { id: 'food', label: 'Еда', icon: 'food' },
       { id: 'body', label: 'Вес и % жира', icon: 'scale' },
-      { id: 'steps', label: 'Шаги', icon: 'steps' },
       { id: 'water', label: 'Вода', icon: 'water' },
     ]
     return (
@@ -154,16 +153,15 @@ function QuickSheet({ kind, setKind }) {
             </button>
           ))}
         </div>
-        <p className="hint">Тренировки, лекарства, финансы и задачи появятся в следующих этапах.</p>
+        <p className="hint">Тренировки, финансы и задачи появятся в следующих этапах.</p>
       </Sheet>
     )
   }
-  const title = { food: 'Еда', body: 'Вес и % жира', steps: 'Шаги', water: 'Вода' }[kind]
+  const title = { food: 'Еда', body: 'Вес и % жира', water: 'Вода' }[kind]
   return (
     <Sheet title={title} onClose={close}>
       {kind === 'food' && <FoodForm date={date} onSaved={done} />}
       {kind === 'body' && <QuickBody onSaved={done} />}
-      {kind === 'steps' && <QuickSteps date={date} onSaved={done} />}
       {kind === 'water' && <QuickWater date={date} onSaved={done} />}
     </Sheet>
   )

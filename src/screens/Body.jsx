@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useApp } from '../App'
 import { supabase } from '../supabase'
-import { useLoad, bodyHistory, dailyRange } from '../lib/data'
+import { useLoad, bodyHistory } from '../lib/data'
 import { addDays, shortDate, today } from '../lib/dates'
 import { fmt } from '../lib/num'
-import { BarChart, Icon, LineChart } from '../ui'
+import { Icon, LineChart } from '../ui'
 
 const RANGES = [
   { id: 30, label: '30 дней' },
@@ -23,11 +23,7 @@ export default function Body() {
   const { viewing, version, bump, readOnly, openQuick } = useApp()
   const [range, setRange] = useState(90)
   const t = today()
-  const from14 = addDays(t, -13)
-  const { data } = useLoad(async () => {
-    const [rows, daily] = await Promise.all([bodyHistory(viewing.id), dailyRange(viewing.id, from14, t)])
-    return { rows, daily }
-  }, [viewing.id, version])
+  const { data } = useLoad(async () => ({ rows: await bodyHistory(viewing.id) }), [viewing.id, version])
 
   const all = data?.rows || []
   const cutoff = range ? addDays(t, -range) : '0000'
@@ -39,12 +35,6 @@ export default function Body() {
   const both = rows.filter((r) => r.weight != null && r.bf != null)
   const first = both[0], last = both[both.length - 1]
   const mass = (r) => ({ lean: r.weight * (1 - r.bf / 100), fat: (r.weight * r.bf) / 100 })
-
-  const days = Array.from({ length: 14 }, (_, i) => {
-    const date = addDays(from14, i)
-    return { date, value: data?.daily?.find((d) => d.date === date)?.steps ?? 0 }
-  })
-  const stepsAvg = days.filter((d) => d.value).reduce((a, d, _, arr) => a + d.value / arr.length, 0)
 
   async function remove(id) {
     await supabase.from('body_logs').delete().eq('id', id)
@@ -81,15 +71,6 @@ export default function Body() {
           {weight.length > 0 && <span className="big" style={{ fontSize: 24 }}>{fmt(weight[weight.length - 1].value, 1)} кг</span>}
         </div>
         <LineChart points={weight} unit="кг" />
-      </section>
-
-      <section className="card" aria-label="Шаги за 2 недели">
-        <div className="card-head">
-          <h2 className="card-title">Шаги, 14 дней</h2>
-          <span className="sub num">в среднем {fmt(stepsAvg)}</span>
-        </div>
-        <BarChart days={days} goal={viewing.goal_steps || 10000} />
-        {!readOnly && <button className="btn secondary small" onClick={() => openQuick('steps')}>Записать шаги за сегодня</button>}
       </section>
 
       <section className="card" aria-label="Записи">

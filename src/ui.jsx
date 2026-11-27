@@ -15,7 +15,6 @@ const P = {
   close: 'M6 6l12 12M18 6L6 18',
   trash: 'M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
   scale: 'M4 4h16v16H4zM8 9a4 4 0 0 1 8 0M12 9l2-2',
-  steps: 'M8 4c2 0 3 2 3 5s-1 4-3 4-3-1-3-4 1-5 3-5zM6 16h4v2a2 2 0 0 1-4 0zM16 8c2 0 3 2 3 5s-1 4-3 4-3-1-3-4 1-5 3-5zM14 20h4v1a2 2 0 0 1-4 0z',
   water: 'M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z',
 }
 
@@ -137,31 +136,6 @@ export function LineChart({ points, goal, goalLabel, digits = 1, unit = '' }) {
       {points.map((p, i) => (
         <circle key={p.date + i} className={`dot${i === points.length - 1 ? ' last' : ''}`} cx={x(p.date)} cy={y(p.value)} r={i === points.length - 1 ? 4.5 : points.length > 30 ? 0 : 3} />
       ))}
-    </svg>
-  )
-}
-
-// ── Столбики по дням ── days: [{date, value}]
-export function BarChart({ days, goal }) {
-  const W = 340, H = 150, L = 36, R = 6, T = 10, B = 22
-  const max = Math.max(goal || 0, ...days.map((d) => d.value || 0), 1)
-  const ticks = niceTicks(0, max, 3)
-  const yMax = ticks[ticks.length - 1]
-  const y = (v) => T + (1 - v / yMax) * (H - T - B)
-  const bw = (W - L - R) / days.length
-  return (
-    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Шаги по дням">
-      <g className="grid">{ticks.map((t) => <line key={t} x1={L} x2={W - R} y1={y(t)} y2={y(t)} />)}</g>
-      <g className="axis">
-        {ticks.map((t) => <text key={t} x={L - 6} y={y(t) + 4} textAnchor="end">{t >= 1000 ? `${t / 1000}к` : t}</text>)}
-        {days.map((d, i) => (i === 0 || i === days.length - 1) && (
-          <text key={d.date} x={L + bw * i + bw / 2} y={H - 6} textAnchor={i === 0 ? 'start' : 'end'}>{shortDate(d.date)}</text>
-        ))}
-      </g>
-      {days.map((d, i) => d.value ? (
-        <rect key={d.date} className={`barrect${goal && d.value < goal ? ' under' : ''}`} x={L + bw * i + bw * 0.15} width={bw * 0.7} y={y(d.value)} height={H - B - y(d.value)} rx="2" />
-      ) : null)}
-      {goal ? <line className="goal" x1={L} x2={W - R} y1={y(goal)} y2={y(goal)} /> : null}
     </svg>
   )
 }

@@ -14,7 +14,6 @@ export default function Today() {
   const body = data?.body
   const eaten = sumFood(data?.food)
   const t = effectiveTargets(viewing, body || {})
-  const steps = data?.daily?.steps ?? 0
   const water = data?.daily?.water_ml ?? 0
   const toGoal = body?.bf != null && viewing.goal_bf != null ? body.bf - viewing.goal_bf : null
 
@@ -41,26 +40,15 @@ export default function Today() {
         </div>
       </section>
 
-      <div className="grid2">
-        <section className="card" aria-label="Шаги">
-          <div className="card-head">
-            <h2 className="card-title">Шаги</h2>
-            {!readOnly && <button className="card-link" onClick={() => openQuick('steps')}>Изм.</button>}
-          </div>
-          <div className="big">{fmt(steps)}</div>
-          <div className="bar"><i style={{ width: `${Math.min(100, (steps / (viewing.goal_steps || 10000)) * 100)}%` }} /></div>
-          <div className="sub num">цель {fmt(viewing.goal_steps || 10000)}</div>
-        </section>
-        <section className="card" aria-label="Вода">
+      <section className="card" aria-label="Вода">
           <div className="card-head">
             <h2 className="card-title">Вода</h2>
-            {!readOnly && <button className="card-link" onClick={() => openQuick('water')}>+</button>}
+            {!readOnly && <button className="card-link" onClick={() => openQuick('water')}>Добавить</button>}
           </div>
           <div className="big">{fmt(water / 1000, 1)}<small>л</small></div>
           <div className="bar"><i style={{ width: `${Math.min(100, (water / (viewing.goal_water_ml || 2500)) * 100)}%`, background: 'var(--protein)' }} /></div>
           <div className="sub num">цель {fmt((viewing.goal_water_ml || 2500) / 1000, 1)} л</div>
         </section>
-      </div>
 
       <section className="card" aria-label="Тело">
         <div className="card-head">

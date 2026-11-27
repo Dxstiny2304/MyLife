@@ -4,14 +4,12 @@ import { supabase } from '../supabase'
 import { useLoad, latestBody, effectiveTargets } from '../lib/data'
 import { fmt, parseNum } from '../lib/num'
 import ProfileFields, { profileToForm } from './ProfileFields'
-import HealthSync from './HealthSync'
 
 export default function More() {
   return (
     <>
       <ProfileCard />
       <TargetsCard />
-      <HealthSync />
       <PairCard />
       <PrivacyCard />
       <section className="card">
@@ -59,7 +57,7 @@ function TargetsCard() {
   const t = effectiveTargets(me, body || {})
   const [v, setV] = useState({
     kcal: me.goal_kcal ?? '', protein: me.goal_protein ?? '', fat: me.goal_fat ?? '', carbs: me.goal_carbs ?? '',
-    steps: me.goal_steps ?? 10000, water: (me.goal_water_ml ?? 2500) / 1000,
+    water: (me.goal_water_ml ?? 2500) / 1000,
   })
   const [st, save] = useSaver()
   const on = (k) => (e) => setV({ ...v, [k]: e.target.value })
@@ -69,7 +67,7 @@ function TargetsCard() {
       e.preventDefault()
       save({
         goal_kcal: parseNum(v.kcal), goal_protein: parseNum(v.protein), goal_fat: parseNum(v.fat), goal_carbs: parseNum(v.carbs),
-        goal_steps: parseNum(v.steps) ?? 10000, goal_water_ml: Math.round((parseNum(v.water) ?? 2.5) * 1000),
+        goal_water_ml: Math.round((parseNum(v.water) ?? 2.5) * 1000),
       })
     }}>
       <h2 className="card-title">Нормы на день</h2>
@@ -89,14 +87,9 @@ function TargetsCard() {
           </label>
         ))}
       </div>
-      <div className="fields2">
-        <label className="field"><span>Шаги</span>
-          <input id="goal-steps" className="input" inputMode="numeric" value={v.steps} onChange={on('steps')} />
-        </label>
-        <label className="field"><span>Вода, л</span>
-          <input id="goal-water" className="input" inputMode="decimal" value={v.water} onChange={on('water')} />
-        </label>
-      </div>
+      <label className="field"><span>Вода, л</span>
+        <input id="goal-water" className="input" inputMode="decimal" value={v.water} onChange={on('water')} />
+      </label>
       {st.error && <div className="error">{st.error}</div>}
       <button className="btn" disabled={st.busy}>{st.msg || 'Сохранить нормы'}</button>
     </form>
@@ -170,13 +163,12 @@ function PrivacyCard() {
   const [st, save] = useSaver()
   const items = [
     ['share_finance', 'Финансы'],
-    ['share_meds', 'Лекарства'],
     ['share_photos', 'Фото тела'],
   ]
   return (
     <section className="card">
       <h2 className="card-title">Что видит партнёр</h2>
-      <p className="hint" style={{ margin: 0 }}>Питание, тело, шаги, тренировки и задачи партнёр видит всегда. Эти разделы скрыты, пока ты их не включишь.</p>
+      <p className="hint" style={{ margin: 0 }}>Питание, тело, тренировки и задачи партнёр видит всегда. Эти разделы скрыты, пока ты их не включишь.</p>
       {items.map(([k, l]) => (
         <label className="switch-row" key={k}><span>{l}</span>
           <input id={k} type="checkbox" className="switch" checked={!!me[k]} disabled={st.busy} onChange={(e) => save({ [k]: e.target.checked })} />

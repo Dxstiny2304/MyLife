@@ -38,9 +38,6 @@ export const foodForDay = async (userId, date) =>
 export const dailyFor = async (userId, date) =>
   unwrap(await supabase.from('daily_logs').select('*').eq('user_id', userId).eq('date', date).maybeSingle())
 
-export const dailyRange = async (userId, from, to) =>
-  unwrap(await supabase.from('daily_logs').select('*').eq('user_id', userId).gte('date', from).lte('date', to).order('date'))
-
 export const myFoods = async (userId) =>
   unwrap(await supabase.from('foods').select('*').eq('user_id', userId).order('name'))
 

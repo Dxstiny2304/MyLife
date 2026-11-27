@@ -76,32 +76,6 @@ export function QuickBody({ onSaved }) {
   )
 }
 
-export function QuickSteps({ date, onSaved }) {
-  const { me } = useApp()
-  const { data } = useLoad(() => dailyFor(me.id, date), [me.id, date])
-  const [steps, setSteps] = useState(null)
-  const [error, setError] = useState('')
-  const value = steps ?? (data?.steps != null ? String(data.steps) : '')
-
-  async function submit(e) {
-    e.preventDefault()
-    try {
-      await upsertDaily(me.id, date, { steps: Math.round(parseNum(value) ?? 0) })
-      onSaved()
-    } catch (err) { setError(err.message) }
-  }
-  return (
-    <form className="form" onSubmit={submit}>
-      <label className="field"><span>Шагов за день</span>
-        <input id="qs-steps" className="input" inputMode="numeric" value={value} onChange={(e) => setSteps(e.target.value)} placeholder="10 000" autoFocus />
-      </label>
-      <p className="hint">Шаги можно не вводить вручную: настрой автоматическую передачу из «Здоровья» в разделе «Ещё».</p>
-      {error && <div className="error">{error}</div>}
-      <button className="btn">Сохранить</button>
-    </form>
-  )
-}
-
 export function QuickWater({ date, onSaved }) {
   const { me } = useApp()
   const { data } = useLoad(() => dailyFor(me.id, date), [me.id, date])
