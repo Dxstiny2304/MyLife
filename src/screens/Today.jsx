@@ -1,15 +1,24 @@
+import { useState } from 'react'
 import { useApp } from '../App'
-import { useLoad, latestBody, foodForDay, dailyFor, effectiveTargets, sumFood } from '../lib/data'
+import { WorkoutSheet } from './body/Training'
+import { groupLabel, isoWeekday, tonnage } from '../lib/training'
+import { fromISO } from '../lib/dates'
+import { useLoad, latestBody, foodForDay, dailyFor, effectiveTargets, sumFood, workoutTemplates, workoutLogs, templateFor } from '../lib/data'
 import { addDays, dayLabel } from '../lib/dates'
 import { fmt } from '../lib/num'
 import { DayNav, MacroBar, Ring } from '../ui'
 
 export default function Today() {
-  const { viewing, date, setDate, version, readOnly, openQuick, goTab } = useApp()
+  const { viewing, date, setDate, version, bump, readOnly, openQuick, goTab } = useApp()
+  const [session, setSession] = useState(null)
   const { data } = useLoad(async () => {
-    const [body, food, daily] = await Promise.all([latestBody(viewing.id), foodForDay(viewing.id, date), dailyFor(viewing.id, date)])
-    return { body, food, daily }
+    const [body, food, daily, templates, logs] = await Promise.all([
+      latestBody(viewing.id), foodForDay(viewing.id, date), dailyFor(viewing.id, date), workoutTemplates(viewing.id), workoutLogs(viewing.id),
+    ])
+    return { body, food, daily, templates, logs }
   }, [viewing.id, date, version])
+  const plan = templateFor(data?.templates, isoWeekday(fromISO(date)))
+  const done = (data?.logs || []).find((l) => l.date === date && (!plan || l.template_id === plan.id))
 
   const body = data?.body
   const eaten = sumFood(data?.food)
@@ -38,6 +47,25 @@ export default function Today() {
           <MacroBar label="Жиры" value={eaten.fat} goal={t.fat} color="var(--fat)" />
           <MacroBar label="Углеводы" value={eaten.carbs} goal={t.carbs} color="var(--carbs)" />
         </div>
+      </section>
+
+      <section className="card" aria-label="Тренировка">
+        <div className="card-head">
+          <h2 className="card-title">Тренировка</h2>
+          <button className="card-link" onClick={() => goTab('body')}>Расписание</button>
+        </div>
+        {plan ? (
+          <>
+            <div className="big" style={{ fontSize: 26 }}>{plan.name}</div>
+            <div className="sub">{(plan.muscle_groups || []).map(groupLabel).join(', ')}</div>
+            {done && <div><span className="pill good">Сделано · {Math.round(tonnage(done.sets)).toLocaleString('ru-RU')} кг</span></div>}
+            {!readOnly && <button className={`btn${done ? ' secondary' : ''}`} onClick={() => setSession({ template: plan, date, log: done })}>{done ? 'Открыть запись' : 'Начать тренировку'}</button>}
+          </>
+        ) : done ? (
+          <span className="pill good">{done.name}: сделано</span>
+        ) : (
+          <div className="sub">По расписанию отдых.</div>
+        )}
       </section>
 
       <section className="card" aria-label="Вода">
@@ -69,6 +97,7 @@ export default function Today() {
         </div>
         {!readOnly && <button className="btn secondary small" onClick={() => openQuick('body')}>Записать вес или % жира</button>}
       </section>
+      {session && <WorkoutSheet {...session} logs={data?.logs || []} onClose={() => setSession(null)} onSaved={() => { setSession(null); bump() }} />}
     </>
   )
 }

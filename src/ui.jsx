@@ -102,11 +102,13 @@ function niceTicks(min, max, count = 4) {
 // ── Линейный график по датам ── points: [{date, value}] по возрастанию даты
 export function LineChart({ points, goal, goalLabel, digits = 1, unit = '' }) {
   if (points.length === 0) return <div className="empty">Пока нет записей.</div>
-  const W = 340, H = 170, L = 36, R = 10, T = 12, B = 24
   const vals = points.map((p) => p.value)
   const lo = Math.min(...vals, goal ?? Infinity)
   const hi = Math.max(...vals, goal ?? -Infinity)
   const ticks = niceTicks(lo, hi)
+  // Отступ слева под самую длинную подпись оси
+  const longest = Math.max(...ticks.map((t) => fmt(t, t % 1 ? 1 : 0).length))
+  const W = 340, H = 170, L = 12 + longest * 6.5, R = 10, T = 12, B = 24
   const yMin = ticks[0], yMax = ticks[ticks.length - 1]
   const t0 = new Date(points[0].date).getTime()
   const t1 = new Date(points[points.length - 1].date).getTime()

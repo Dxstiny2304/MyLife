@@ -65,3 +65,19 @@ export const sumFood = (rows) =>
     kcal: a.kcal + Number(r.kcal || 0), protein: a.protein + Number(r.protein || 0),
     fat: a.fat + Number(r.fat || 0), carbs: a.carbs + Number(r.carbs || 0),
   }), { kcal: 0, protein: 0, fat: 0, carbs: 0 })
+
+// ── Тренировки и фото ──
+export const workoutTemplates = async (userId) =>
+  unwrap(await supabase.from('workout_templates').select('*').eq('user_id', userId).order('created_at'))
+
+export const workoutLogs = async (userId, fromDate) => {
+  let q = supabase.from('workout_logs').select('*').eq('user_id', userId).order('date', { ascending: false }).order('created_at', { ascending: false })
+  if (fromDate) q = q.gte('date', fromDate)
+  return unwrap(await q.limit(500))
+}
+
+export const bodyPhotos = async (userId) =>
+  unwrap(await supabase.from('body_photos').select('*').eq('user_id', userId).order('date', { ascending: false }).order('created_at', { ascending: false }))
+
+// Шаблон на конкретный день недели (1–7)
+export const templateFor = (templates, weekday) => (templates || []).find((t) => (t.weekdays || []).includes(weekday)) || null
